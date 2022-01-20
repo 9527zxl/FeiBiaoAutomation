@@ -1,6 +1,4 @@
-from tool import driverTool
-from tool.driverTool import WebDriver
+from tool.driverTool import driver
 
-driver = driverTool.driver()
-
-
+driver = driver()
+print(driver.title)

@@ -1,11 +1,27 @@
-from tool.driverTool import driver
+from time import sleep
 
-driver = driver()
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+
+chromeoption = webdriver.ChromeOptions()
+# chromeoption.add_argument('--headless')    # 无头浏览器
+chromeoption.add_argument(
+    'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36')
+driver_path = 'D:\Python 3.10.1\chromedriver.exe'
+driver = webdriver.Chrome(driver_path, chrome_options=chromeoption)
+
+driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+    "source": """
+    Object.defineProperty(navigator, 'webdriver', {
+      get: () => undefined
+    })
+  """
+})
+
+
 driver.get('http://cpquery.cnipa.gov.cn/')
+driver.implicitly_wait(20)
+sleep(5)
 
-all_ = driver.window_handles
-print(all_)
-
-dq = driver.current_window_handle
-print(dq)
-
+driver.find_element(By.XPATH, '//input[@id="username1"]').send_keys('15755188511')
+driver.find_element(By.XPATH, '//input[@id="password1"]').send_keys('Zhixin888*')

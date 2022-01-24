@@ -1,25 +1,22 @@
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver import Chrome
+from selenium.webdriver import ChromeOptions
 
 
 def driver():
-    options = Options()
-    # chrome.exe --remote-debugging-port=9527 --user-data-dir=“E:\Chrome”
-    options.add_experimental_option("debuggerAddress", "127.0.0.1:9527")
-    bro = Chrome(options=options)
-    bro.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+    options = ChromeOptions()
+    # options.add_argument('--headless')    # 无头浏览器
+    options.add_argument(
+        'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36')
+    dr = Chrome(options=options)
+    dr.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
         "source": """
-        Object.defineProperty(navigator, 'webdriver', {
-          get: () => undefined
-        })
-      """
+                Object.defineProperty(navigator, 'webdriver', {
+                  get: () => undefined
+                })
+              """
     })
-    return bro
+    return dr
 
 
-def pages(page):
-    return driver().switch_to_window(driver().window_handles[page])
-
-
-class Patent:
-    pass
+def gain_patent_number():
+    return

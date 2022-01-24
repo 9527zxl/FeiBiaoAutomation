@@ -1,3 +1,7 @@
+import json
+from time import sleep
+
+from PIL import Image
 from selenium.webdriver import Chrome
 from selenium.webdriver import ChromeOptions
 from selenium.webdriver.common.by import By
@@ -23,10 +27,28 @@ dr.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
             })
             """
 })
-
+dr.maximize_window()  # 将浏览器最大化
 dr.get('http://cpquery.cnipa.gov.cn/')
 dr.implicitly_wait(20)
 
 input()
 
+#  driver.find_element(By.XPATH, '//input[@id="username1"]').send_keys('15755188511')
+#  driver.find_element(By.XPATH, '//input[@id="password1"]').send_keys('Zhixin888*')
 
+dr.save_screenshot('printscreen.png')
+imgelement = dr.find_element(By.XPATH, '//*[@id="authImg"]')  # 定位验证码
+location = imgelement.location  # 获取验证码x,y轴坐标
+size = imgelement.size  # 获取验证码的长宽
+rangle = (int(location['x']), int(location['y']), int(location['x'] + size['width']),
+          int(location['y'] + size['height']))  # 写成我们需要截取的位置坐标
+i = Image.open("printscreen.png")  # 打开截图
+frame4 = i.crop(rangle)  # 使用Image的crop函数，从截图中再次截取我们需要的区域
+frame4.save('code.png')  # 保存我们接下来的验证码图片 进行打码
+
+# 输入专利号
+dr.find_element(By.XPATH, '//*[@id="select-key:shenqingh"]').send_keys()
+# 输入验证码
+dr.find_element(By.XPATH, '//*[@id="very-code"]').send_keys()
+# 点击查询
+dr.find_element(By.XPATH, '//*[@id="query"]').click()

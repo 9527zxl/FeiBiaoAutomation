@@ -1,6 +1,8 @@
 from time import sleep
 
+from PIL import Image
 from selenium import webdriver
+from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 
 chromeoption = webdriver.ChromeOptions()
@@ -18,10 +20,9 @@ driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
   """
 })
 
-
 driver.get('http://cpquery.cnipa.gov.cn/')
 driver.implicitly_wait(20)
-sleep(5)
 
-driver.find_element(By.XPATH, '//input[@id="username1"]').send_keys('15755188511')
-driver.find_element(By.XPATH, '//input[@id="password1"]').send_keys('Zhixin888*')
+input()
+
+

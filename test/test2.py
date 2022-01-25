@@ -1,12 +1,15 @@
 import json
 from time import sleep
 
+import ddddocr
 from PIL import Image
 from selenium.webdriver import Chrome
 from selenium.webdriver import ChromeOptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
+from tool.driverTool import calculate_code
 
 options = ChromeOptions()
 # 隐藏 正在受到自动软件的控制 这几个字
@@ -46,9 +49,14 @@ i = Image.open("printscreen.png")  # 打开截图
 frame4 = i.crop(rangle)  # 使用Image的crop函数，从截图中再次截取我们需要的区域
 frame4.save('code.png')  # 保存我们接下来的验证码图片 进行打码
 
+code = calculate_code()
+print(code)
+
 # 输入专利号
-dr.find_element(By.XPATH, '//*[@id="select-key:shenqingh"]').send_keys()
+dr.find_element(By.XPATH, '//*[@id="select-key:shenqingh"]').send_keys('2020108031465')
+sleep(1)
 # 输入验证码
-dr.find_element(By.XPATH, '//*[@id="very-code"]').send_keys()
+dr.find_element(By.XPATH, '//*[@id="very-code"]').send_keys(code)
+sleep(1)
 # 点击查询
 dr.find_element(By.XPATH, '//*[@id="query"]').click()

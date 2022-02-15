@@ -38,9 +38,11 @@ driver.find_element(By.XPATH, "//input[@name='captcha']").send_keys(code)
 
 driver.find_element(By.XPATH, "//input[@class='loginin']").click()
 
-cookie = json.dumps(driver.get_cookies())
+cookie_text = json.dumps(driver.get_cookies())
 
-print(cookie)
+
+
+print(cookie_text)
 
 
 

@@ -1,10 +1,7 @@
 import json
-from tool.driverTool import driver
+from selenium import webdriver
 
-# 填写webdriver的保存目录
-driver = driver()
-
-# 记得写完整的url 包括http和https
+driver = webdriver.Firefox()  # Firefox浏览器
 driver.get('http://cpquery.cnipa.gov.cn/')
 
 # 程序打开网页后 “手动登陆账户”

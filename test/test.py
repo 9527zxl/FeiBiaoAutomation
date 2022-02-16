@@ -1,18 +1,25 @@
-import ddddocr
-import cv2
+from time import sleep
 
-det = ddddocr.DdddOcr(det=True)
+from PIL import Image
+from selenium.webdriver import ActionChains
+from selenium.webdriver.common.by import By
 
-with open("../temporary/test.jpg", 'rb') as f:
-    image = f.read()
+from tool.tool import getdriver
 
-poses = det.detection(image)
-print(poses)
+driver = getdriver()
 
-im = cv2.imread("../temporary/test.jpg")
+driver.get('http://cpquery.cnipa.gov.cn/')
+driver.maximize_window()
+driver.implicitly_wait(20)
 
-for box in poses:
-    x1, y1, x2, y2 = box
-    im = cv2.rectangle(im, (x1, y1), (x2, y2), color=(0, 0, 255), thickness=2)
+sleep(15)
 
-cv2.imwrite("result.jpg", im)
+move = driver.find_element(By.XPATH, '//span[@id="selectyzm_text"]')
+ActionChains(driver).move_to_element(move).perform()
+
+sleep(2)
+driver.save_screenshot("Login.png")
+rangle = (1057, 286, 1057 + 387, 286 + 273)
+i = Image.open("Login.png")  # 打开截图
+frame4 = i.crop(rangle)  # 使用Image的crop函数，从截图中再次截取我们需要的区域
+frame4.save('code.png')  # 保存我们接下来的验证码图片 进行打码

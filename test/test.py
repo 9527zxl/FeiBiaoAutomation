@@ -32,3 +32,5 @@ frame4.save('code.png')  # 保存接下来的验证码图片 进行打码
 
 code = inquire_auth_code('code.png')
 print(code)
+
+driver.quit()

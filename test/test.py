@@ -2,9 +2,6 @@ import ast
 import json
 from time import sleep
 
-import cv2
-import ddddocr
-from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
@@ -33,4 +30,13 @@ frame4.save('code.png')  # 保存接下来的验证码图片 进行打码
 code = inquire_auth_code('code.png')
 print(code)
 
+code_text = driver.find_element(By.XPATH, '//*[@id="selectyzm_text"]').text
+data = code_text.split('"')
+print(data)
+
+for id in code:
+    if id['code'] == data[1]:
+        ActionChains(driver).move_to_element_with_offset(imgelement, id['X'], id['Y']).click().perform()
+        sleep(1)
+driver.save_screenshot('aa.png')
 driver.quit()

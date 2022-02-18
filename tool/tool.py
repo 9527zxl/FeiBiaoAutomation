@@ -114,12 +114,9 @@ def inquire_auth_code(img_location):
         # 扣除文字图片并重命名保存
         name = '../temporary/patent_Login_code-' + str(count) + '.png'
         frame4.save(name)
-
+        # 识别单个图片
         ocr = ddddocr_ocr(name)
-        t = str(coord[0]) + ',' + str(coord[1])
-
         a = dict(code=ocr, X=coord[0], Y=coord[1])
-
         code.append(a)
 
     return code

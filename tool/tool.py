@@ -1,16 +1,17 @@
 import json
+from time import sleep
 
 import ddddocr
 import requests
 from PIL import Image
-from selenium.webdriver import Firefox
+from selenium.webdriver import Firefox, ActionChains
 from selenium.webdriver import FirefoxOptions
 from selenium.webdriver.common.by import By
 
 
 def getdriver():
     options = FirefoxOptions()
-    options.add_argument('--headless')  # 无头浏览器
+    # options.add_argument('--headless')  # 无头浏览器
     driver_path = 'D:\PythonWarehouse\FeiBiaoAutomation\driver\geckodriver.exe'
     driver = Firefox(executable_path=driver_path, options=options)
 
@@ -85,7 +86,7 @@ def feibiao_login(username, password):
         f.write(cookies_list)
 
 
-# # 读取并处理飞镖网cookies
+# 读取并处理飞镖网cookies
 def feibiao_cookie():
     with open('../temporary/FeiBiao_Cookies.txt', 'r') as f:
         cookies_list = json.load(f)
@@ -95,28 +96,4 @@ def feibiao_cookie():
     return cookie
 
 
-# 处理查询网站点选验证码
-def inquire_auth_code(img_location):
-    det = ddddocr.DdddOcr(det=True)
 
-    # 读取验证码并返回坐标
-    with open(img_location, 'rb') as f:
-        image = f.read()
-    poses = det.detection(image)
-
-    code = []
-    count = 0
-    for coord in poses:
-        count += 1
-        coord = (coord[0], coord[1], coord[2], coord[3])
-        i = Image.open(img_location)
-        frame4 = i.crop(coord)
-        # 扣除文字图片并重命名保存
-        name = '../temporary/patent_Login_code-' + str(count) + '.png'
-        frame4.save(name)
-        # 识别单个图片
-        ocr = ddddocr_ocr(name)
-        a = dict(code=ocr, X=coord[0], Y=coord[1])
-        code.append(a)
-
-    return code

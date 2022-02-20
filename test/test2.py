@@ -1,11 +1,22 @@
-import ddddocr
+from selenium.webdriver.support import expected_conditions as EC
 
-from tool.tool import ddddocr_ocr
-from PIL import Image
+from selenium.webdriver import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
 
-ocr1 = ddddocr_ocr('../temporary/patent_Login_code-1.png')
-ocr2 = ddddocr_ocr('../temporary/patent_Login_code-2.png')
-ocr3 = ddddocr_ocr('../temporary/patent_Login_code-3.png')
-ocr4 = ddddocr_ocr('../temporary/patent_Login_code-4.png')
-# ocr5 = ddddocr_ocr('../temporary/patent_Login_code-5.png')
-print(ocr1, ocr2, ocr3, ocr4)
+from tool.tool import getdriver
+
+driver = getdriver()
+driver.get('http://cpquery.cnipa.gov.cn/')
+driver.implicitly_wait(20)
+WebDriverWait(driver, 20).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="selectyzm_text"]'), u'请依次点击'))
+
+text = driver.find_element(By.XPATH, '//*[@id="selectyzm_text"]').text
+# ActionChains(driver).move_to_element(text).perform()
+
+print(text)
+input()
+aa = driver.find_element(By.XPATH, '//*[@id="selectyzm_text"]').text
+print(aa)
+
+driver.quit()

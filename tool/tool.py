@@ -12,7 +12,7 @@ from selenium.webdriver.common.by import By
 
 def getdriver():
     options = FirefoxOptions()
-    options.add_argument('--headless')  # 无头浏览器
+    # options.add_argument('--headless')  # 无头浏览器
     driver_path = 'D:\PythonWarehouse\FeiBiaoAutomation\driver\geckodriver.exe'
     driver = Firefox(executable_path=driver_path, options=options)
 
@@ -34,7 +34,7 @@ def patent_inquire_code(driver):
     url = 'http://cpquery.cnipa.gov.cn/freeze.main?txn-code=createImgServlet'
     driver.get(url)
     driver.save_screenshot('../temporary/calculate.png')
-    rangle = 648, 328, (648 + 70), (328 + 20)  # 写成我们需要截取的位置坐标
+    rangle = 925, 472, (925 + 70), (472 + 20)  # 写成我们需要截取的位置坐标
     i = Image.open('../temporary/calculate.png')  # 打开截图
     frame4 = i.crop(rangle)  # 使用Image的crop函数，从截图中再次截取需要的区域
     img_byte = BytesIO()
@@ -113,7 +113,7 @@ def login_patent_inquiry(driver, username, password):
 
 
 # 定位验证码并点击
-def Load_verification_code(driver):
+def load_verification_code(driver):
     driver.save_screenshot('../temporary/patent_inquire_login.png')
     imgelement = driver.find_element(By.XPATH, '//*[@id="jcaptchaimage"]')  # 定位验证码
     location = imgelement.location  # 获取验证码x,y轴坐标

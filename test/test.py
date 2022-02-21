@@ -9,7 +9,7 @@ from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
-from tool.tool import getdriver, Load_verification_code, login_patent_inquiry, patent_inquire_code
+from tool.tool import getdriver, login_patent_inquiry, patent_inquire_code, load_verification_code
 
 driver = getdriver()
 driver.get('http://cpquery.cnipa.gov.cn/')
@@ -25,13 +25,13 @@ move = driver.find_element(By.XPATH, '//span[@id="selectyzm_text"]')
 ActionChains(driver).move_to_element(move).perform()
 sleep(1)
 
-Load_verification_code(driver)
+load_verification_code(driver)
 
 aa = driver.find_element(By.XPATH, '//*[@id="selectyzm_text"]').text
 while aa != '验证成功':
     imgelement = driver.find_element(By.XPATH, '//*[@id="jcaptchaimage"]')
     ActionChains(driver).move_to_element_with_offset(imgelement, 300, 10).click().perform()
-    Load_verification_code(driver)
+    load_verification_code(driver)
 else:
     driver.find_element(By.XPATH, '//*[@id="publiclogin"]').click()
 

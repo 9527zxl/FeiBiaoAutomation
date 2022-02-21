@@ -1,69 +1,67 @@
-import gc
-from io import BytesIO
+import json
+import re
+
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.support import expected_conditions as EC
 from time import sleep
 
-import ddddocr
-from PIL import Image
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
 
-from tool.tool import getdriver
+from tool.tool import getdriver, Load_verification_code, login_patent_inquiry, patent_inquire_code
 
 driver = getdriver()
 driver.get('http://cpquery.cnipa.gov.cn/')
 driver.maximize_window()
 driver.implicitly_wait(20)
-sleep(10)
+# 显示等待，等待验证码加载出来
+WebDriverWait(driver, 20).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="selectyzm_text"]'), u'请依次点击'))
+
+# 输入账号
+login_patent_inquiry(driver, username='15156052212', password='Zhixin888*')
+
 move = driver.find_element(By.XPATH, '//span[@id="selectyzm_text"]')
 ActionChains(driver).move_to_element(move).perform()
-sleep(2)
+sleep(1)
 
-driver.save_screenshot('../temporary/patent_inquire_login.png')
+Load_verification_code(driver)
 
-imgelement = driver.find_element(By.XPATH, '//*[@id="jcaptchaimage"]')  # 定位验证码
-location = imgelement.location  # 获取验证码x,y轴坐标
-size = imgelement.size  # 获取验证码的长宽
-rangle = (int(location['x']), int(location['y']), int(location['x'] + size['width']),
-          int(location['y'] + size['height']))  # 写成我们需要截取的位置坐标
-i = Image.open('../temporary/patent_inquire_login.png')  # 打开截图
-frame4 = i.crop(rangle)  # 使用Image的crop函数，从截图中再次截取需要的区域
-img_byte = BytesIO()
-frame4.save(img_byte, 'png')  # 保存接下来的验证码图片 进行打码
+aa = driver.find_element(By.XPATH, '//*[@id="selectyzm_text"]').text
+while aa != '验证成功':
+    imgelement = driver.find_element(By.XPATH, '//*[@id="jcaptchaimage"]')
+    ActionChains(driver).move_to_element_with_offset(imgelement, 300, 10).click().perform()
+    Load_verification_code(driver)
+else:
+    driver.find_element(By.XPATH, '//*[@id="publiclogin"]').click()
 
-det = ddddocr.DdddOcr(det=True)
-poses = det.detection(img_byte.getvalue())
-print(poses)
+calculate_code = patent_inquire_code(driver)
 
-code = []
-for coord in poses:
-    coord = (coord[0], coord[1], coord[2], coord[3])
+driver.get('http://cpquery.cnipa.gov.cn/txnQueryOrdinaryPatents.do?select-key:shenqingh=2017113960900&verycode=' + str(
+    calculate_code))
 
-    img_base = Image.open(BytesIO(img_byte.getvalue()))
+try:
+    driver.find_element(By.XPATH, '/html/body/div[2]/div[1]/div[2]/div[2]/div/ul/li[1]/a')
+    print('在')
+except NoSuchElementException as e:
+    calculate_code = patent_inquire_code(driver)
+    driver.get('http://cpquery.cnipa.gov.cn/txnQueryOrdinaryPatents.do?select-key:shenqingh=2017113960900&verycode=' + str(
+            calculate_code))
+    print('不在')
 
-    frame = img_base.crop(coord)  # 使用Image的crop函数，从截图中再次截取需要的区域
-    img = BytesIO()
-    frame.save(img, 'png')  # 保存图片
+driver.find_element(By.XPATH, '/html/body/div[2]/div[1]/div[2]/div[2]/div/ul/li[1]/a').click()
 
-    # 识别单个图片
-    ocr = ddddocr.DdddOcr()
-    word = ocr.classification(img.getvalue())
+token = re.findall('token=(.*?)&', driver.current_url)
+print(token[0])
 
-    # 根据四个坐标计算中心点
-    a = dict(code=word, X=int((coord[0] + coord[2]) / 2), Y=int((coord[1] + coord[3]) / 2))
-    code.append(a)
+with open('../temporary/cookies.json', 'w') as f:
+    # 将cookies保存为json格式
+    f.write(json.dumps(driver.get_cookies()))
+cookie = ''
+with open('../temporary/cookies.json', 'r') as f:
+    cookies_list = json.load(f)
+    for cookies in cookies_list:
+        cookie += cookies['name'] + '=' + cookies['value'] + ';'
+print(cookie)
 
-code_text = driver.find_element(By.XPATH, '//*[@id="selectyzm_text"]').text
-data = code_text.split('"')
-
-for ss in data:
-    for coord_id in code:
-        if coord_id['code'] == ss:
-            ActionChains(driver).move_to_element_with_offset(imgelement, coord_id['X'],
-                                                             coord_id['Y']).click().perform()
-            sleep(1)
-
-gc.collect()
-driver.save_screenshot('./aa.png')
 driver.quit()
-print(code)
-print(data)

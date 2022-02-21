@@ -1,8 +1,9 @@
+import gc
 import json
+from io import BytesIO
 from time import sleep
 
 import ddddocr
-import requests
 from PIL import Image
 from selenium.webdriver import Firefox, ActionChains
 from selenium.webdriver import FirefoxOptions
@@ -11,7 +12,7 @@ from selenium.webdriver.common.by import By
 
 def getdriver():
     options = FirefoxOptions()
-    # options.add_argument('--headless')  # 无头浏览器
+    options.add_argument('--headless')  # 无头浏览器
     driver_path = 'D:\PythonWarehouse\FeiBiaoAutomation\driver\geckodriver.exe'
     driver = Firefox(executable_path=driver_path, options=options)
 
@@ -28,16 +29,19 @@ def ddddocr_ocr(img_location):
 
 
 # 专利查询网计算验证码识别
-def patent_inquire_code(img_location):
+def patent_inquire_code(driver):
     # 验证码地址
     url = 'http://cpquery.cnipa.gov.cn/freeze.main?txn-code=createImgServlet'
-    response = requests.get(url)
-    # 将图片保存
-    with open(img_location, "wb") as f:
-        f.write(response.content)
-
-    # 验证码识别
-    img = ddddocr_ocr(img_location)
+    driver.get(url)
+    driver.save_screenshot('../temporary/calculate.png')
+    rangle = 648, 328, (648 + 70), (328 + 20)  # 写成我们需要截取的位置坐标
+    i = Image.open('../temporary/calculate.png')  # 打开截图
+    frame4 = i.crop(rangle)  # 使用Image的crop函数，从截图中再次截取需要的区域
+    img_byte = BytesIO()
+    frame4.save(img_byte, 'png')
+    # 识别单个图片
+    ocr = ddddocr.DdddOcr()
+    img = ocr.classification(img_byte.getvalue())
 
     # 对ocr识别后的字符串进行处理
     number = list(img)
@@ -47,6 +51,7 @@ def patent_inquire_code(img_location):
     elif number[1] == '+':
         code = int(number[0]) + int(number[2])
 
+    gc.collect()
     return code
 
 
@@ -96,4 +101,63 @@ def feibiao_cookie():
     return cookie
 
 
+# 专利查询网输入账号密码
+def login_patent_inquiry(driver, username, password):
+    username_move = driver.find_element(By.XPATH, '//input[@id="username1"]')
+    js = 'arguments[0].value= ' + '"' + username + '"' + ';'
+    driver.execute_script(js, username_move)
+    sleep(0.5)
+    password_move = driver.find_element(By.XPATH, '//input[@id="password1"]')
+    js = 'arguments[0].value= ' + '"' + password + '"' + ';'
+    driver.execute_script(js, password_move)
 
+
+# 定位验证码并点击
+def Load_verification_code(driver):
+    driver.save_screenshot('../temporary/patent_inquire_login.png')
+    imgelement = driver.find_element(By.XPATH, '//*[@id="jcaptchaimage"]')  # 定位验证码
+    location = imgelement.location  # 获取验证码x,y轴坐标
+    size = imgelement.size  # 获取验证码的长宽
+    rangle = (int(location['x']), int(location['y']), int(location['x'] + size['width']),
+              int(location['y'] + size['height']))  # 写成我们需要截取的位置坐标
+    i = Image.open('../temporary/patent_inquire_login.png')  # 打开截图
+    frame4 = i.crop(rangle)  # 使用Image的crop函数，从截图中再次截取需要的区域
+    img_byte = BytesIO()
+    frame4.save(img_byte, 'png')  # 保存接下来的验证码图片 进行打码
+
+    det = ddddocr.DdddOcr(det=True)
+    poses = det.detection(img_byte.getvalue())
+
+    code = []
+    for coord in poses:
+        coord = (coord[0], coord[1], coord[2], coord[3])
+
+        img_base = Image.open(BytesIO(img_byte.getvalue()))
+
+        frame = img_base.crop(coord)  # 使用Image的crop函数，从截图中再次截取需要的区域
+        img = BytesIO()
+        frame.save(img, 'png')  # 保存图片
+
+        # 识别单个图片
+        ocr = ddddocr.DdddOcr()
+        word = ocr.classification(img.getvalue())
+
+        # 根据四个坐标计算中心点
+        a = dict(code=word, X=int((coord[0] + coord[2]) / 2), Y=int((coord[1] + coord[3]) / 2))
+        code.append(a)
+
+    code_text = driver.find_element(By.XPATH, '//*[@id="selectyzm_text"]').text
+    data = code_text.split('"')
+    # 根据坐标点击验证码
+    for ss in data:
+        for coord_id in code:
+            if coord_id['code'] == ss:
+                ActionChains(driver).move_to_element_with_offset(imgelement, coord_id['X'],
+                                                                 coord_id['Y']).click().perform()
+                sleep(1)
+
+    # 释放内存
+    gc.collect()
+
+    print(code)
+    print(data)

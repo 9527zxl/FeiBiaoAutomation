@@ -8,6 +8,8 @@ from PIL import Image
 from selenium.webdriver import Firefox, ActionChains
 from selenium.webdriver import FirefoxOptions
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
 def getdriver():
@@ -34,7 +36,7 @@ def patent_inquire_code(driver):
     url = 'http://cpquery.cnipa.gov.cn/freeze.main?txn-code=createImgServlet'
     driver.get(url)
     driver.save_screenshot('../temporary/calculate.png')
-    rangle = 925, 472, (925 + 70), (472 + 20)  # 写成我们需要截取的位置坐标
+    rangle = 685, 378, (685 + 70), (378 + 20)  # 写成我们需要截取的位置坐标
     i = Image.open('../temporary/calculate.png')  # 打开截图
     frame4 = i.crop(rangle)  # 使用Image的crop函数，从截图中再次截取需要的区域
     img_byte = BytesIO()
@@ -114,6 +116,10 @@ def login_patent_inquiry(driver, username, password):
 
 # 定位验证码并点击
 def load_verification_code(driver):
+    driver.implicitly_wait(20)
+    code_text = driver.find_element(By.XPATH, '//*[@id="selectyzm_text"]').text
+    data = code_text.split('"')
+
     driver.save_screenshot('../temporary/patent_inquire_login.png')
     imgelement = driver.find_element(By.XPATH, '//*[@id="jcaptchaimage"]')  # 定位验证码
     location = imgelement.location  # 获取验证码x,y轴坐标
@@ -131,33 +137,36 @@ def load_verification_code(driver):
     code = []
     for coord in poses:
         coord = (coord[0], coord[1], coord[2], coord[3])
-
         img_base = Image.open(BytesIO(img_byte.getvalue()))
-
         frame = img_base.crop(coord)  # 使用Image的crop函数，从截图中再次截取需要的区域
         img = BytesIO()
         frame.save(img, 'png')  # 保存图片
-
         # 识别单个图片
         ocr = ddddocr.DdddOcr()
         word = ocr.classification(img.getvalue())
-
         # 根据四个坐标计算中心点
         a = dict(code=word, X=int((coord[0] + coord[2]) / 2), Y=int((coord[1] + coord[3]) / 2))
         code.append(a)
 
-    code_text = driver.find_element(By.XPATH, '//*[@id="selectyzm_text"]').text
-    data = code_text.split('"')
     # 根据坐标点击验证码
     for ss in data:
         for coord_id in code:
-            if coord_id['code'] == ss:
+            if ss == coord_id['code']:
                 ActionChains(driver).move_to_element_with_offset(imgelement, coord_id['X'],
                                                                  coord_id['Y']).click().perform()
                 sleep(1)
 
+    aa = driver.find_element(By.XPATH, '//*[@id="selectyzm_text"]').text
+    while aa != '验证成功':
+        try:
+            element = driver.find_element(By.XPATH, '//*[@id="jcaptchaimage"]')
+            ActionChains(driver).move_to_element_with_offset(element, 300, 10).click().perform()
+        except Exception:
+            print('出错啦')
+        sleep(1)
+        load_verification_code(driver)
+    else:
+        driver.find_element(By.XPATH, '//input[@id="publiclogin"]').click()
+
     # 释放内存
     gc.collect()
-
-    print(code)
-    print(data)

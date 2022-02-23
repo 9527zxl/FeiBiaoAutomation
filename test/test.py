@@ -23,9 +23,7 @@ WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, '//*[@
 # 输入账号密码
 login_patent_inquiry(driver, username='15156052212', password='Zhixin888*')
 
-# move = driver.find_element(By.XPATH, '//span[@id="selectyzm_text"]')
-# ActionChains(driver).move_to_element(move).perform()
-# sleep(1)
+# 悬浮验证码图片
 imgyzm = driver.find_element(By.XPATH, '//*[@id="imgyzm"]')
 reload = driver.find_element(By.XPATH, '//*[@id="reload"]')
 driver.execute_script("arguments[0].setAttribute(arguments[1],arguments[2])", reload, 'style', 'position: absolute; bottom: 230px; left: 275px; height: 0px;')
@@ -33,7 +31,7 @@ driver.execute_script("arguments[0].setAttribute(arguments[1],arguments[2])", im
 driver.execute_script("arguments[0].setAttribute(arguments[1],arguments[2])", reload, 'class', 'refresh')
 
 load_verification_code(driver)
-# 处理验证码点击错误重新加载
+# 处理验证码点击错误进行重新加载
 while driver.find_element(By.XPATH, '//*[@id="selectyzm_text"]').text != '验证成功':
     element = driver.find_element(By.XPATH, '//*[@class="img_reload"]')
     ActionChains(driver).move_to_element_with_offset(element, 15, 15).click().perform()

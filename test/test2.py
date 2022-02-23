@@ -9,11 +9,8 @@ driver = getdriver()
 driver.get('http://cpquery.cnipa.gov.cn/')
 driver.maximize_window()
 driver.implicitly_wait(20)
-# 显示等待，等待验证码加载出来
-WebDriverWait(driver, 20).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="selectyzm_text"]'), u'请依次点击'))
-
-js='window.open("https://www.sogou.com");'
-driver.execute_script(js)
-driver.switch_to.window(driver.window_handles[1])  # 转到第2个（从0开始）
-
-print(driver.current_url)
+# 显示等待，等待验证码文字加载出来
+WebDriverWait(driver, 10).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="selectyzm_text"]'), '请依次点击'))
+# 显示等待，等待验证码图片加载出来
+WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="jcaptchaimage"]')))
+WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@class="img_reload"]')))

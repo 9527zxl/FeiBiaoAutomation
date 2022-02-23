@@ -8,7 +8,7 @@ from PIL import Image
 from selenium.webdriver import Firefox, ActionChains
 from selenium.webdriver import FirefoxOptions
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 
@@ -32,21 +32,23 @@ def ddddocr_ocr(img_location):
 
 # 专利查询网计算验证码识别
 def patent_inquire_code(driver):
-    # 验证码地址
-    url = 'http://cpquery.cnipa.gov.cn/freeze.main?txn-code=createImgServlet'
-    driver.get(url)
-    driver.save_screenshot('../temporary/calculate.png')
-    rangle = 685, 378, (685 + 70), (378 + 20)  # 写成我们需要截取的位置坐标
-    i = Image.open('../temporary/calculate.png')  # 打开截图
-    frame4 = i.crop(rangle)  # 使用Image的crop函数，从截图中再次截取需要的区域
-    img_byte = BytesIO()
-    frame4.save(img_byte, 'png')
-    # 识别单个图片
+    # 获取计算验证码
+    driver.save_screenshot('../temporary/query_page.png')
+    imgelement = driver.find_element(By.XPATH, '//*[@id="authImg"]')  # 定位验证码
+    location = imgelement.location  # 获取验证码x,y轴坐标
+    size = imgelement.size  # 获取验证码的长宽
+    rangle = (int(location['x']), int(location['y']), int(location['x'] + size['width']),
+              int(location['y'] + size['height']))  # 写成我们需要截取的位置坐标
+    i = Image.open('../temporary/query_page.png')  # 打开截图
+    frame4 = i.crop(rangle)  # 使用Image的crop函数，从截图中再次截取我们需要的区域
+    img = BytesIO()
+    frame4.save(img, 'png')  # 保存接下来的验证码图片 进行打码
+
     ocr = ddddocr.DdddOcr()
-    img = ocr.classification(img_byte.getvalue())
+    word = ocr.classification(img.getvalue())
 
     # 对ocr识别后的字符串进行处理
-    number = list(img)
+    number = list(word)
     code = 0
     if number[1] == '-':
         code = int(number[0]) - int(number[2])
@@ -55,6 +57,15 @@ def patent_inquire_code(driver):
 
     gc.collect()
     return code
+
+
+# 判断元素是否存在
+def isElementExist(driver, xpath_path):
+    try:
+        WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.XPATH, xpath_path)))
+        return False
+    except:
+        return True
 
 
 # 登录飞镖网后台获取cookies值
@@ -116,7 +127,6 @@ def login_patent_inquiry(driver, username, password):
 
 # 定位验证码并点击
 def load_verification_code(driver):
-    driver.implicitly_wait(20)
     code_text = driver.find_element(By.XPATH, '//*[@id="selectyzm_text"]').text
     data = code_text.split('"')
 
@@ -136,7 +146,7 @@ def load_verification_code(driver):
 
     code = []
     for coord in poses:
-        coord = (coord[0], coord[1], coord[2], coord[3])
+        coord = coord[0], coord[1], coord[2], coord[3]
         img_base = Image.open(BytesIO(img_byte.getvalue()))
         frame = img_base.crop(coord)  # 使用Image的crop函数，从截图中再次截取需要的区域
         img = BytesIO()
@@ -154,19 +164,7 @@ def load_verification_code(driver):
             if ss == coord_id['code']:
                 ActionChains(driver).move_to_element_with_offset(imgelement, coord_id['X'],
                                                                  coord_id['Y']).click().perform()
-                sleep(1)
-
-    aa = driver.find_element(By.XPATH, '//*[@id="selectyzm_text"]').text
-    while aa != '验证成功':
-        try:
-            element = driver.find_element(By.XPATH, '//*[@id="jcaptchaimage"]')
-            ActionChains(driver).move_to_element_with_offset(element, 300, 10).click().perform()
-        except Exception:
-            print('出错啦')
-        sleep(1)
-        load_verification_code(driver)
-    else:
-        driver.find_element(By.XPATH, '//input[@id="publiclogin"]').click()
+                sleep(0.5)
 
     # 释放内存
     gc.collect()

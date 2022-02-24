@@ -143,13 +143,17 @@ def login_patent_inquiry_gettoken(patent_number):
     # driver.execute_script("arguments[0].removeAttribute(arguments[1])", elementObj, 'disabled')
     # elementObj.click()
 
-    # 计算验证码识别
-    count_code = patent_inquire_code(driver)
+    # 计算验证码识别,验证码识别错误处理
+    try:
+        count_code = patent_inquire_code(driver)
+    except Exception:
+        driver.get('http://cpquery.cnipa.gov.cn/txnPantentInfoList.do?')
+        count_code = patent_inquire_code(driver)
     driver.get(
         'http://cpquery.cnipa.gov.cn/txnQueryOrdinaryPatents.do?select-key:shenqingh=' + str(
             patent_number) + '&verycode=' + str(
             count_code))
-    # 处理计算验证码失效或识别错误
+    # 处理计算验证码失效
     while isElementExist(driver=driver, xpath_path='//*[@class="bi_icon"]'):
         count_code = patent_inquire_code(driver)
         driver.get(

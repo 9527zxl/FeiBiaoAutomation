@@ -136,7 +136,13 @@ def login_patent_inquiry_gettoken(patent_number):
     # 等待登录加载完成
     WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.XPATH, '//*[@class="tittle_box"]')))
 
+    # 跳过使用声明，有一定几率加载失败
     driver.get('http://cpquery.cnipa.gov.cn/txnPantentInfoList.do?')
+    # # 通过js删除属性的方法同意声明
+    # elementObj = driver.find_element(By.XPATH, '//*[@id="goBtn"]')
+    # driver.execute_script("arguments[0].removeAttribute(arguments[1])", elementObj, 'disabled')
+    # elementObj.click()
+
     # 计算验证码识别
     count_code = patent_inquire_code(driver)
     driver.get(
@@ -152,6 +158,8 @@ def login_patent_inquiry_gettoken(patent_number):
                 count_code))
 
     driver.find_element(By.XPATH, '/html/body/div[2]/div[1]/div[2]/div[2]/div/ul/li[1]/a').click()
+    # 等待加载完成
+    WebDriverWait(driver, 30).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="jbxx"]/p'), '申请信息'))
 
     # 通过正则获取token
     token = re.findall('token=(.*?)&', driver.current_url)

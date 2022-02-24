@@ -63,19 +63,23 @@ def feibiao_login(username, password):
     code = ddddocr_ocr('../temporary/FeiBiao_Code.png')
 
     driver.find_element(By.XPATH, "//input[@name='captcha']").send_keys(code)
-
+    # 点击登录按钮
     driver.find_element(By.XPATH, "//input[@class='loginin']").click()
-
+    # 等待登录完成
+    WebDriverWait(driver, 30).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="LAY_app"]/div[1]/div[2]/div/div/span'), '飞镖网管理后台'))
+    # 获取cookies
     cookies_list = json.dumps(driver.get_cookies())
 
     # 持久化cookies
-    with open('../temporary/FeiBiao_Cookies.txt', 'w') as f:
+    with open('../temporary/FeiBiao_Cookies.json', 'w') as f:
         f.write(cookies_list)
+
+    driver.quit()
 
 
 # 读取并处理飞镖网cookies
 def feibiao_cookie():
-    with open('../temporary/FeiBiao_Cookies.txt', 'r') as f:
+    with open('../temporary/FeiBiao_Cookies.json', 'r') as f:
         cookies_list = json.load(f)
         cookie = cookies_list[0]['name'] + '=' + cookies_list[0]['value'] + ';' + cookies_list[1]['name'] + '=' + \
                  cookies_list[1]['value']

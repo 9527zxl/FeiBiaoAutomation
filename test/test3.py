@@ -1,19 +1,69 @@
+import os
+import tkinter
 import tkinter as tk
+import tkinter.messagebox
+from ttkbootstrap import Style
 
-from tool.patent_query_tool import login_patent_inquiry_gettoken
+from tool.feibaio_tool import feibiao_login
 
 window = tk.Tk()
 window.title('飞镖自动化')
-window.geometry('500x700')
+# 设置窗口大小及位置
+window.geometry('300x300+500+200')
 
-token = login_patent_inquiry_gettoken(2017107806169)
-# 窗口的label
-k = tk.Label(window,
-             text=token,  # 文本
-             bg='green',  # 字体的背景颜色
-             font=('Arial', 12),  # 字体和大小
-             width=30, height=2  # 字体所占的宽度和高度
-             )
-k.pack()  # 固定
+window.iconbitmap('../temporary/柠檬.ico')
+window.resizable(width=False, height=False)
+# 通过ttkbootstrap美化
+style = Style()
+Style(theme='minty')
+
+
+# 主界面
+def main():
+    main = tk.Tk()
+    main.title('欢迎您，今天的工作开始了')
+    main.geometry('500x400+500+200')
+    main.mainloop()
+
+
+# 登录页面
+def login():
+    if account_input.get() == '':
+        tkinter.messagebox.showinfo(title='error', message='账号不能为空!')
+    elif password_input.get() == '':
+        tkinter.messagebox.showinfo(title='error', message='密码不能为空!')
+    else:
+        main()
+
+    username = account_input.get()
+    password = password_input.get()
+    # 登录飞镖网
+    # feibiao_login(username=username, password=password)
+
+
+def quit():
+    # 终止程序
+    os._exit(0)
+
+
+login_text = tkinter.Label(window, text='登录飞镖网后台', font=('Arial', 19))
+login_text.pack()
+
+account_text = tkinter.Label(window, text='账号:', font=('Arial', 12), width=10, height=2)
+account_text.place(x=10, y=80, width=80, height=20)
+account_input = tkinter.Entry(window, width=20)
+account_input.place(x=80, y=80, width=160, height=25)
+
+password_text = tkinter.Label(window, text='密码:', font=('Arial', 12), width=10, height=2)
+password_text.place(x=10, y=150, width=80, height=20)
+password_input = tkinter.Entry(window, show='*', width=20)
+password_input.place(x=80, y=150, width=160, height=25)
+
+# 登录按钮
+login = tkinter.Button(window, text="登录", font=('Arial', 10), command=login)
+login.place(x=60, y=200, width=60, height=30)
+# 退出按钮
+quit = tkinter.Button(window, text="退出", font=('Arial', 10), command=quit)
+quit.place(x=190, y=200, width=60, height=30)
 
 window.mainloop()

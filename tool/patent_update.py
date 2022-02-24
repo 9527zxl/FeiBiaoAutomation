@@ -1,5 +1,3 @@
-import json
-
 import requests
 
 
@@ -20,8 +18,32 @@ def patent_update(feibiao_cookie, update_cookie, update_token):
 
     patent_update_url = 'http://www.ipfeibiao.com/manager/patentUpdateAnnualState/updatePatents'
 
-    response = requests.post(url=patent_update_url, params=param, headers=headers)
+    requests.post(url=patent_update_url, params=param, headers=headers)
+
+
+# 获取专利号
+def get_patent_number(feibiao_cookie):
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36',
+        'cookies': feibiao_cookie
+    }
+
+    param = {
+        'page': 1,
+        'limit': 50
+    }
+
+    url = 'http://www.ipfeibiao.com/manager/patentUpdateAnnualState/list'
+
+    response = requests.get(url=url, params=param, headers=headers)
     list_data = response.json()
 
-    fp = open('./updatePatents.json', 'w', encoding='utf-8')
-    json.dump(list_data, fp=fp, ensure_ascii=False)
+    # 年费状态更新数量
+    annual_fee_quantity = list_data['count']
+    print(annual_fee_quantity)
+
+    patent_gather = []
+    for id in list_data['data']:
+        patent_gather.append(id['app_no'])
+
+    return patent_gather

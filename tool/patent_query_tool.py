@@ -127,11 +127,12 @@ def login_patent_inquiry_gettoken(patent_number):
     # 处理验证码点击错误进行重新加载
     while driver.find_element(By.XPATH, '//*[@id="selectyzm_text"]').text != '验证成功':
         element = driver.find_element(By.XPATH, '//*[@class="img_reload"]')
-        ActionChains(driver).move_to_element_with_offset(element, 15, 15).click().perform()
-        sleep(2)
+        driver.execute_script("arguments[0].click();", element)
+        sleep(1)
         load_verification_code(driver)
     else:
-        driver.find_element(By.XPATH, '//input[@id="publiclogin"]').click()
+        element = driver.find_element(By.XPATH, '//input[@id="publiclogin"]')
+        driver.execute_script("arguments[0].click();", element)
 
     # 等待登录加载完成
     WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.XPATH, '//*[@class="tittle_box"]')))

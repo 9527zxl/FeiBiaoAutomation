@@ -117,7 +117,7 @@ def login_patent_inquiry_gettoken(patent_number):
     WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="jcaptchaimage"]')))
 
     # 输入账号密码
-    account_password(driver, username='18656758970', password='Zhixin888*')
+    account_password(driver, username='13665695915', password='Zhixin888*')
 
     # 悬浮验证码图片
     imgyzm = driver.find_element(By.XPATH, '//*[@id="imgyzm"]')

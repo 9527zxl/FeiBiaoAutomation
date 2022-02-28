@@ -12,7 +12,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 def getdriver():
     options = FirefoxOptions()
-    # options.add_argument('--headless')  # 无头浏览器
+    options.add_argument('--headless')  # 无头浏览器
     driver_path = 'D:\PythonWarehouse\FeiBiaoAutomation\driver\geckodriver.exe'
     driver = Firefox(executable_path=driver_path, options=options)
 
@@ -61,12 +61,30 @@ def feibiao_login(username, password):
 
     # 识别验证码
     code = ddddocr_ocr('../temporary/FeiBiao_Code.png')
-
+    # 输入验证码
     driver.find_element(By.XPATH, "//input[@name='captcha']").send_keys(code)
     # 点击登录按钮
     driver.find_element(By.XPATH, "//input[@class='loginin']").click()
+
+    # 判断文字元素存不存在
+    def error(xpath, text):
+        try:
+            WebDriverWait(driver, 2).until(
+                EC.text_to_be_present_in_element((By.XPATH, xpath), text))
+            return True
+        except:
+            return False
+
+    # 处理验证码识别错误
+    while error(xpath="//div[@class='layui-layer-content']", text='验证码不正确'):
+        feibiao_login(username, password)
+    # 输入账号密码错误场景
+    if error(xpath="//div[@class='layui-layer-content']", text='登录失败，用户名或密码不正确！'):
+        driver.quit()
+        return '登录失败，用户名或密码不正确！'
     # 等待登录完成
-    WebDriverWait(driver, 30).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="LAY_app"]/div[1]/div[2]/div/div/span'), '飞镖网管理后台'))
+    WebDriverWait(driver, 20).until(
+        EC.text_to_be_present_in_element((By.XPATH, '//*[@id="LAY_app"]/div[1]/div[2]/div/div/span'), '飞镖网管理后台'))
     # 获取cookies
     cookies_list = json.dumps(driver.get_cookies())
 

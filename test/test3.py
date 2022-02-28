@@ -32,13 +32,12 @@ def login():
         tkinter.messagebox.showinfo(title='error', message='账号不能为空!')
     elif password_input.get() == '':
         tkinter.messagebox.showinfo(title='error', message='密码不能为空!')
-    else:
-        main()
 
     username = account_input.get()
     password = password_input.get()
     # 登录飞镖网
-    # feibiao_login(username=username, password=password)
+    login_text = feibiao_login(username=username, password=password)
+    tkinter.messagebox.showinfo(title='error', message=login_text)
 
 
 def quit():

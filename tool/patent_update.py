@@ -67,4 +67,4 @@ def update_successfully(feibiao_cookie):
     response = requests.post(url=url, params=param, headers=headers)
     list_data = response.json()
 
-    print(list_data['count'])
+    return list_data['count']

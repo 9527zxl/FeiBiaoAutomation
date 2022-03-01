@@ -1,6 +1,7 @@
 import json
 import random
 import re
+import time
 
 from selenium.webdriver.support import expected_conditions as EC
 from time import sleep
@@ -48,75 +49,50 @@ def login():
         element = driver.find_element(By.XPATH, '//input[@id="publiclogin"]')
         driver.execute_script("arguments[0].click();", element)
     # 等待登录加载完成
-    WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.XPATH, '//*[@class="tittle_box"]')))
+    WebDriverWait(driver, 30).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@class="tittle_box"]'), '使用声明'))
+    # 进入查询页面
+    driver.get('http://cpquery.cnipa.gov.cn/txnPantentInfoList.do?')
     # 获取登录cookies
+    dictCookies = driver.get_cookies()  # 获取list的cookies
+    jsonCookies = json.dumps(dictCookies)  # 转换成字符串保存
     with open('../temporary/cnipa_cookies.text', 'w') as f:
         # 将cookies保存为json格式
-        f.write(json.dumps(driver.get_cookies()))
-    driver.quit()
+        f.write(jsonCookies)
 
 
 def click(patent_number):
     driver = getdriver()
     driver.implicitly_wait(20)
-    driver.get('http://cpquery.cnipa.gov.cn/')
+    driver.get('http://cpquery.cnipa.gov.cn/txnPantentInfoList.do?')
     driver.maximize_window()
 
-    with open('../temporary/cnipa_cookies.text', 'r') as f:
-        # 使用json读取cookies 注意读取的是文件 所以用load而不是loads
-        cookies_list = json.load(f)
-        for cookie in cookies_list:
-            driver.add_cookie(cookie)
+    # 首先清除由于浏览器打开已有的cookies
+    driver.delete_all_cookies()
 
     # 显示等待，等待验证码文字加载出来
     WebDriverWait(driver, 30).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="selectyzm_text"]'), '请依次点击'))
     # 显示等待，等待验证码图片加载出来
     WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="jcaptchaimage"]')))
 
+    with open('../temporary/cnipa_cookies.text', 'r', encoding='utf8') as f:
+        # 使用json读取cookies 注意读取的是文件 所以用load而不是loads
+        listCookies = json.loads(f.read())
+
+    # 往browser里添加cookies
+    for cookie in listCookies:
+        cookie_dict = {
+            'name': cookie.get('name'),
+            'value': cookie.get('value'),
+            'path': '/',
+            'domain': cookie.get('domain'),
+            'secure': cookie.get('secure'),
+            'httpOnly': False,
+            'expiry': cookie.get('expiry'),
+            'sameSite': cookie.get('sameSite')
+        }
+        driver.add_cookie(cookie_dict)
+
     driver.get('http://cpquery.cnipa.gov.cn/txnPantentInfoList.do?')
-
-    # 计算验证码识别,验证码识别错误处理
-    def error_code():
-        try:
-            code.count_code = patent_inquire_code(driver)
-            return False
-        except Exception:
-            return True
-
-    while error_code():
-        driver.get('http://cpquery.cnipa.gov.cn/txnPantentInfoList.do?')
-
-        code.count_code = patent_inquire_code(driver)
-    # 请求输入过验证码界面
-    driver.get(
-        'http://cpquery.cnipa.gov.cn/txnQueryOrdinaryPatents.do?select-key:shenqingh=' + str(
-            patent_number) + '&verycode=' + str(
-            code.count_code))
-
-    # 处理计算验证码失效
-    while isElementExist(driver=driver, xpath_path='//*[@class="bi_icon"]'):
-        code.count_code = patent_inquire_code(driver)
-        driver.get(
-            'http://cpquery.cnipa.gov.cn/txnQueryOrdinaryPatents.do?select-key:shenqingh=' + str(
-                patent_number) + '&verycode=' + str(
-                code.count_code))
-
-    driver.find_element(By.XPATH, '/html/body/div[2]/div[1]/div[2]/div[2]/div/ul/li[1]/a').click()
-
-    # 等待加载完成
-    WebDriverWait(driver, 30).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="jbxx"]/p'), '申请信息'))
-
-    # 通过正则获取token
-    token = re.findall('token=(.*?)&', driver.current_url)
-
-    # 将cookies持久化保存
-    with open('../temporary/cookies.text', 'w') as f:
-        # 将cookies保存为json格式
-        f.write(json.dumps(driver.get_cookies()))
-
-    # 退出浏览器
-    driver.quit()
-    return token[0]
 
 
 # 判断主页面

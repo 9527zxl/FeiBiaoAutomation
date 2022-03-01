@@ -79,6 +79,19 @@ def load_verification_code(driver):
 def patent_inquire_code(driver):
     # 获取计算验证码
     driver.save_screenshot('../temporary/query_page.png')
+
+    # 处理定位验证码失败
+    def error():
+        try:
+            WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.XPATH, '//*[@id="authImg"]')))
+            return True
+        except Exception:
+            return False
+
+    while not error():
+        driver.refresh()
+        patent_inquire_code(driver)
+
     imgelement = driver.find_element(By.XPATH, '//*[@id="authImg"]')  # 定位验证码
     location = imgelement.location  # 获取验证码x,y轴坐标
     size = imgelement.size  # 获取验证码的长宽
@@ -111,13 +124,25 @@ def login_patent_inquiry_gettoken(patent_number):
     driver.maximize_window()
     # 隐示等待，用于等待网页加载，应用于全局
     driver.implicitly_wait(20)
-    # 显示等待，等待验证码文字加载出来
-    WebDriverWait(driver, 30).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="selectyzm_text"]'), '请依次点击'))
+
+    # 解决网站加载超时问题
+    def timeout():
+        try:
+            # 显示等待，等待验证码文字加载出来
+            WebDriverWait(driver, 20).until(
+                EC.text_to_be_present_in_element((By.XPATH, '//*[@id="selectyzm_text"]'), '请依次点击'))
+            return True
+        except Exception:
+            driver.quit()
+            return False
+
+    while not timeout():
+        login_patent_inquiry_gettoken(patent_number)
     # 显示等待，等待验证码图片加载出来
-    WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="jcaptchaimage"]')))
+    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, '//*[@id="jcaptchaimage"]')))
 
     # 输入账号密码
-    account_password(driver, username='13665695915', password='Zhixin888*')
+    account_password(driver, username='18656758970', password='Zhixin888*')
 
     # 悬浮验证码图片
     imgyzm = driver.find_element(By.XPATH, '//*[@id="imgyzm"]')
@@ -139,7 +164,7 @@ def login_patent_inquiry_gettoken(patent_number):
         driver.execute_script("arguments[0].click();", element)
 
     # 等待登录加载完成
-    WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.XPATH, '//*[@class="tittle_box"]')))
+    WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@class="tittle_box"]')))
 
     # 跳过使用声明，有一定几率加载失败
     driver.get('http://cpquery.cnipa.gov.cn/txnPantentInfoList.do?')
@@ -170,7 +195,7 @@ def login_patent_inquiry_gettoken(patent_number):
 
     driver.find_element(By.XPATH, '/html/body/div[2]/div[1]/div[2]/div[2]/div/ul/li[1]/a').click()
     # 等待加载完成
-    WebDriverWait(driver, 30).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="jbxx"]/p'), '申请信息'))
+    WebDriverWait(driver, 20).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="jbxx"]/p'), '申请信息'))
 
     # 通过正则获取token
     token = re.findall('token=(.*?)&', driver.current_url)
@@ -182,6 +207,7 @@ def login_patent_inquiry_gettoken(patent_number):
 
     # 退出浏览器
     driver.quit()
+    # 返回token值
     return token[0]
 
 

@@ -67,9 +67,12 @@ def load_verification_code(driver):
     for ss in data:
         for coord_id in code:
             if ss == coord_id['code']:
-                ActionChains(driver).move_to_element_with_offset(imgelement, coord_id['X'],
-                                                                 coord_id['Y']).click().perform()
-                sleep(0.5)
+                try:
+                    ActionChains(driver).move_to_element_with_offset(imgelement, coord_id['X'],
+                                                                     coord_id['Y']).click().perform()
+                    sleep(0.5)
+                except Exception:
+                    pass
 
     # 释放内存
     gc.collect()
@@ -136,13 +139,14 @@ def login_patent_inquiry_gettoken(patent_number):
             driver.quit()
             return False
 
-    while not timeout():
+    if not timeout():
         login_patent_inquiry_gettoken(patent_number)
+
     # 显示等待，等待验证码图片加载出来
     WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, '//*[@id="jcaptchaimage"]')))
 
     # 输入账号密码
-    account_password(driver, username='18656758970', password='Zhixin888*')
+    account_password(driver, username='13675614941', password='Zhixin888*')
 
     # 悬浮验证码图片
     imgyzm = driver.find_element(By.XPATH, '//*[@id="imgyzm"]')
@@ -164,7 +168,7 @@ def login_patent_inquiry_gettoken(patent_number):
         driver.execute_script("arguments[0].click();", element)
 
     # 等待登录加载完成
-    WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@class="tittle_box"]')))
+    WebDriverWait(driver, 20).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@class="tittle_box"]'), '使用声明'))
 
     # 跳过使用声明，有一定几率加载失败
     driver.get('http://cpquery.cnipa.gov.cn/txnPantentInfoList.do?')

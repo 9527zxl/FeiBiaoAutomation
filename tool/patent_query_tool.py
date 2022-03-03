@@ -146,7 +146,7 @@ def login_patent_inquiry_gettoken(patent_number):
     WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, '//*[@id="jcaptchaimage"]')))
 
     # 输入账号密码
-    account_password(driver, username='13675614941', password='Zhixin888*')
+    account_password(driver, username='18656758970', password='Zhixin888*')
 
     # 悬浮验证码图片
     imgyzm = driver.find_element(By.XPATH, '//*[@id="imgyzm"]')
@@ -168,8 +168,7 @@ def login_patent_inquiry_gettoken(patent_number):
         driver.execute_script("arguments[0].click();", element)
 
     # 等待登录加载完成
-    WebDriverWait(driver, 20).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@class="tittle_box"]'), '使用声明'))
-
+    WebDriverWait(driver, 30).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@class="tittle_box"]'), '使用声明'))
     # 跳过使用声明，有一定几率加载失败
     driver.get('http://cpquery.cnipa.gov.cn/txnPantentInfoList.do?')
 

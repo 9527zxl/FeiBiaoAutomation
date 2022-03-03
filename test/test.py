@@ -52,6 +52,7 @@ def login():
     WebDriverWait(driver, 30).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@class="tittle_box"]'), '使用声明'))
     # 进入查询页面
     driver.get('http://cpquery.cnipa.gov.cn/txnPantentInfoList.do?')
+    driver.implicitly_wait(10)
     # 获取登录cookies
     dictCookies = driver.get_cookies()  # 获取list的cookies
     jsonCookies = json.dumps(dictCookies)  # 转换成字符串保存
@@ -87,12 +88,11 @@ def click(patent_number):
             'domain': cookie.get('domain'),
             'secure': cookie.get('secure'),
             'httpOnly': False,
-            'expiry': cookie.get('expiry'),
             'sameSite': cookie.get('sameSite')
         }
         driver.add_cookie(cookie_dict)
 
-    driver.get('http://cpquery.cnipa.gov.cn/txnPantentInfoList.do?')
+    driver.refresh()
 
 
 # 判断主页面

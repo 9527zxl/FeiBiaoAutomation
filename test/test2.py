@@ -53,13 +53,4 @@ def main():
             print('第' + str(count + 1) + '次更新完成')
 
 
-def error():
-    try:
-        main()
-        return True
-    except Exception:
-        return False
-
-
-while not error():
-    main()
+main()

@@ -4,6 +4,7 @@ from time import sleep
 import ddddocr
 from PIL import Image
 from selenium.webdriver import Firefox, ActionChains
+from msedge.selenium_tools import Edge, EdgeOptions
 from selenium.webdriver import FirefoxOptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
@@ -11,10 +12,17 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 def getdriver():
+    # 火狐浏览器驱动
     options = FirefoxOptions()
     # options.add_argument('--headless')  # 无头浏览器
     driver_path = 'D:\PythonWarehouse\FeiBiaoAutomation\driver\geckodriver.exe'
     driver = Firefox(executable_path=driver_path, options=options)
+
+    # edge浏览器驱动
+    # options = EdgeOptions()
+    # options.add_argument('headless')  # 无头浏览器
+    # driver_path = 'D:\PythonWarehouse\FeiBiaoAutomation\driver\msedgedriver.exe'
+    # driver = Edge(options=options, executable_path=driver_path)
 
     return driver
 

@@ -18,12 +18,6 @@ def getdriver():
     driver_path = 'D:\PythonWarehouse\FeiBiaoAutomation\driver\geckodriver.exe'
     driver = Firefox(executable_path=driver_path, options=options)
 
-    # edge浏览器驱动
-    # options = EdgeOptions()
-    # options.add_argument('headless')  # 无头浏览器
-    # driver_path = 'D:\PythonWarehouse\FeiBiaoAutomation\driver\msedgedriver.exe'
-    # driver = Edge(options=options, executable_path=driver_path)
-
     return driver
 
 
@@ -34,15 +28,6 @@ def ddddocr_ocr(img_location):
         img_bytes = f.read()
     code = ocr.classification(img_bytes)
     return code
-
-
-# 判断元素是否存在
-def isElementExist(driver, xpath_path):
-    try:
-        WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.XPATH, xpath_path)))
-        return False
-    except:
-        return True
 
 
 # 登录飞镖网后台获取cookies值

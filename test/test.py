@@ -9,7 +9,7 @@ from time import sleep
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
-from tool.feibaio_tool import getdriver, isElementExist, feibiao_cookie
+from tool.feibaio_tool import getdriver, feibiao_cookie
 from tool.patent_query_tool import account_password, load_verification_code, patent_inquire_code, get_cookies
 from tool.patent_update import get_patent_number, patent_update
 
@@ -59,52 +59,36 @@ def login():
     with open('../temporary/cnipa_cookies.text', 'w') as f:
         # 将cookies保存为json格式
         f.write(jsonCookies)
+    driver.quit()
 
 
-def click(patent_number):
+def click():
     driver = getdriver()
-    driver.implicitly_wait(20)
-    driver.get('http://cpquery.cnipa.gov.cn/txnPantentInfoList.do?')
+    driver.get('http://cpquery.cnipa.gov.cn/')
     driver.maximize_window()
+    # 隐示等待，用于等待网页加载，应用于全局
+    driver.implicitly_wait(20)
 
     # 首先清除由于浏览器打开已有的cookies
     driver.delete_all_cookies()
-
-    # 显示等待，等待验证码文字加载出来
-    WebDriverWait(driver, 30).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="selectyzm_text"]'), '请依次点击'))
-    # 显示等待，等待验证码图片加载出来
-    WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="jcaptchaimage"]')))
 
     with open('../temporary/cnipa_cookies.text', 'r', encoding='utf8') as f:
         # 使用json读取cookies 注意读取的是文件 所以用load而不是loads
         listCookies = json.loads(f.read())
 
-    # 往browser里添加cookies
+    # 往driver里添加cookies
     for cookie in listCookies:
         cookie_dict = {
             'name': cookie.get('name'),
             'value': cookie.get('value'),
             'path': '/',
             'domain': cookie.get('domain'),
-            'secure': cookie.get('secure'),
-            'httpOnly': False,
-            'sameSite': cookie.get('sameSite')
         }
         driver.add_cookie(cookie_dict)
 
-    driver.refresh()
+    driver.get('http://cpquery.cnipa.gov.cn/txnPantentInfoList.do?')
 
 
-# 判断主页面
-def exist(driver):
-    try:
-        WebDriverWait(driver, 4).until(EC.presence_of_element_located((By.XPATH, '//*[@id="slogo"]')))
-        return True
-    except:
-        return False
+# login()
 
-
-if __name__ == '__main__':
-    # login()
-
-    click(2018101573634)
+click()

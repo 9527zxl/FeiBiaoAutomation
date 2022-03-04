@@ -222,7 +222,7 @@ def gettoken(patent_number):
             patent_number) + '&verycode=' + str(
             code.count_code))
     # 处理计算验证码失效
-    if not does_the_element_exist(driver=driver, xpath_path='//*[@class="bi_icon"]', time=5):
+    while not does_the_element_exist(driver=driver, xpath_path='//*[@class="bi_icon"]', time=5):
         code.count_code = patent_inquire_code(driver)
         driver.get(
             'http://cpquery.cnipa.gov.cn/txnQueryOrdinaryPatents.do?select-key:shenqingh=' + str(

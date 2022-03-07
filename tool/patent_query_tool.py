@@ -34,7 +34,6 @@ def whether_words_exist(driver, xpath_path, time, content):
         WebDriverWait(driver, time).until(EC.text_to_be_present_in_element((By.XPATH, xpath_path), content))
         return True
     except:
-        driver.quit()
         return False
 
 
@@ -103,7 +102,7 @@ def patent_inquire_code(driver):
     driver.save_screenshot('../temporary/query_page.png')
 
     # 处理定位验证码失败
-    while not does_the_element_exist(driver=driver, xpath_path='//*[@id="authImg"]', time=2):
+    if not does_the_element_exist(driver=driver, xpath_path='//*[@id="authImg"]', time=2):
         driver.refresh()
         patent_inquire_code(driver)
 
@@ -142,13 +141,14 @@ def login():
 
     # 解决网站加载超时问题
     if not whether_words_exist(driver=driver, xpath_path='//*[@id="selectyzm_text"]', time=20, content='请依次点击'):
+        driver.quit()
         login()
 
     # 显示等待，等待验证码图片加载出来
     WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, '//*[@id="jcaptchaimage"]')))
 
     # 输入账号密码
-    account_password(driver, username='18365182670', password='Zhixin888*')
+    account_password(driver, username='15755188511', password='Zhixin888*')
 
     # 悬浮验证码图片
     imgyzm = driver.find_element(By.XPATH, '//*[@id="imgyzm"]')
@@ -209,20 +209,24 @@ def gettoken(patent_number):
     driver.get('http://cpquery.cnipa.gov.cn/txnPantentInfoList.do?')
 
     # 判断是否在查询页面
-    if not does_the_element_exist(driver=driver, xpath_path='//*[@class="tab_top_on"]', time=10):
-        driver.refresh()
-        if does_the_element_exist(driver=driver, xpath_path='//*[@id="slogo"]', time=10):
+    if does_the_element_exist(driver=driver, xpath_path='//*[@id="slogo"]', time=5):
+        driver.get('http://cpquery.cnipa.gov.cn/txnPantentInfoList.do?')
+        if does_the_element_exist(driver=driver, xpath_path='//*[@id="slogo"]', time=5):
             driver.quit()
             login()
             gettoken(patent_number)
+        if not does_the_element_exist(driver=driver, xpath_path='//*[@class="tab_top_on"]/p', time=10):
+            driver.quit()
+            gettoken(patent_number)
 
+    code.count_code = patent_inquire_code(driver)
     # 请求输入过验证码界面
     driver.get(
         'http://cpquery.cnipa.gov.cn/txnQueryOrdinaryPatents.do?select-key:shenqingh=' + str(
             patent_number) + '&verycode=' + str(
             code.count_code))
     # 处理计算验证码失效
-    while not does_the_element_exist(driver=driver, xpath_path='//*[@class="bi_icon"]', time=5):
+    while not does_the_element_exist(driver=driver, xpath_path='//*[@class="bi_icon"]', time=0):
         code.count_code = patent_inquire_code(driver)
         driver.get(
             'http://cpquery.cnipa.gov.cn/txnQueryOrdinaryPatents.do?select-key:shenqingh=' + str(

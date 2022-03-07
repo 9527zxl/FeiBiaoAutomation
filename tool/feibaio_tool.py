@@ -16,9 +16,7 @@ def getdriver():
     options = FirefoxOptions()
     # options.add_argument('--headless')  # 无头浏览器
     driver_path = 'D:\PythonWarehouse\FeiBiaoAutomation\driver\geckodriver.exe'
-    driver = Firefox(executable_path=driver_path, options=options)
-
-    return driver
+    return Firefox(executable_path=driver_path, options=options)
 
 
 # ddddocr_ocr验证码识别

@@ -50,7 +50,7 @@ def main():
             print('token:' + token)
             print('cookies:' + cookies)
             patent_update(feibiao_cookie=feibiaCookie, update_token=token, update_cookie=cookies)
-            count += 1
+            count += 2
             print('第' + str(count) + '次更新完成')
 
 

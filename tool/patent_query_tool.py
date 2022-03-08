@@ -148,7 +148,7 @@ def login():
     WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, '//*[@id="jcaptchaimage"]')))
 
     # 输入账号密码
-    account_password(driver, username='15755188511', password='Zhixin888*')
+    account_password(driver, username='18656758970', password='Zhixin888*')
 
     # 悬浮验证码图片
     imgyzm = driver.find_element(By.XPATH, '//*[@id="imgyzm"]')
@@ -207,17 +207,16 @@ def gettoken(patent_number):
 
     # 进入查询页面
     driver.get('http://cpquery.cnipa.gov.cn/txnPantentInfoList.do?')
-
+    driver.get('http://cpquery.cnipa.gov.cn/txnPantentInfoList.do?')
     # 判断是否在查询页面
-    if does_the_element_exist(driver=driver, xpath_path='//*[@id="slogo"]', time=5):
-        driver.get('http://cpquery.cnipa.gov.cn/txnPantentInfoList.do?')
-        if does_the_element_exist(driver=driver, xpath_path='//*[@id="slogo"]', time=5):
-            driver.quit()
-            login()
-            gettoken(patent_number)
-        if not does_the_element_exist(driver=driver, xpath_path='//*[@class="tab_top_on"]/p', time=10):
-            driver.quit()
-            gettoken(patent_number)
+    if does_the_element_exist(driver=driver, xpath_path='//*[@id="slogo"]', time=10):
+        driver.quit()
+        login()
+        gettoken(patent_number)
+    # 等待加载完成
+    if not does_the_element_exist(driver=driver, xpath_path='//*[@class="tab_top_on"]/p', time=20):
+        driver.quit()
+        gettoken(patent_number)
 
     code.count_code = patent_inquire_code(driver)
     # 请求输入过验证码界面

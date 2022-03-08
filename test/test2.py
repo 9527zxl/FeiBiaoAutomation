@@ -17,10 +17,13 @@ def main():
     # 获取专利号
     patent_gather = get_patent_number(feibiaCookie)
     patent_number = random.choice(patent_gather)
+    print('专利号:' + str(patent_number))
     # 获取token
     token = gettoken(patent_number)
+    print('token:' + token)
     # 获取cookies
     cookies = get_cookies()
+    print('cookies:' + cookies)
     patent_update(feibiao_cookie=feibiaCookie, update_token=token, update_cookie=cookies)
     print('第一次更新完成')
 
@@ -40,17 +43,15 @@ def main():
             # 获取专利号
             patent_gather = get_patent_number(feibiaCookie)
             patent_number = random.choice(patent_gather)
+            print('专利号:' + str(patent_number))
             # 获取token
             token = gettoken(patent_number)
+            print('token:' + token)
             # 获取cookies
             cookies = get_cookies()
-
-            print('开始更新')
-            print('专利号:' + str(patent_number))
-            print('token:' + token)
             print('cookies:' + cookies)
             patent_update(feibiao_cookie=feibiaCookie, update_token=token, update_cookie=cookies)
-            count += 2
+            count += 1
             print('第' + str(count) + '次更新完成')
 
 

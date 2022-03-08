@@ -1,5 +1,6 @@
 import gc
 import json
+import random
 import re
 from io import BytesIO
 
@@ -12,7 +13,9 @@ from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
-from tool.feibaio_tool import getdriver
+from tool.feibaio_tool import getdriver, feibiao_cookie
+from tool.patent_query_tool import gettoken
+from tool.patent_update import get_patent_number, patent_update, update_successfully
 
 
 class code:
@@ -222,5 +225,13 @@ def process(patent_number):
 
 
 if __name__ == '__main__':
-    login(username='', password='')
-    process(patent_number='')
+    # 获取飞镖网cookies
+    feibiaCookie = feibiao_cookie()
+    # 获取专利号
+    patent_gather = get_patent_number(feibiaCookie)
+    patent_number = random.choice(patent_gather)
+    print('专利号:' + str(patent_number))
+    # 登录
+    login()
+    # 获取token
+    token = process(patent_number)

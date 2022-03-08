@@ -4,7 +4,6 @@ from time import sleep
 import ddddocr
 from PIL import Image
 from selenium.webdriver import Firefox, ActionChains
-from msedge.selenium_tools import Edge, EdgeOptions
 from selenium.webdriver import FirefoxOptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait

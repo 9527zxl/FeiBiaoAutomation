@@ -148,7 +148,7 @@ def login():
     WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, '//*[@id="jcaptchaimage"]')))
 
     # 输入账号密码
-    account_password(driver, username='18656758970', password='Zhixin888*')
+    account_password(driver, username='15755188511', password='Zhixin888*')
 
     # 悬浮验证码图片
     imgyzm = driver.find_element(By.XPATH, '//*[@id="imgyzm"]')

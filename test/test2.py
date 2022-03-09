@@ -4,7 +4,7 @@ from time import sleep
 from selenium.common.exceptions import TimeoutException
 
 from tool.feibaio_tool import feibiao_login, feibiao_cookie
-from tool.patent_query_tool import get_cookies, gettoken
+from tool.patent_query_tool import get_cookies, gettoken, login
 from tool.patent_update import patent_update, get_patent_number, update_successfully
 
 
@@ -56,3 +56,4 @@ def main():
 
 
 main()
+# login()

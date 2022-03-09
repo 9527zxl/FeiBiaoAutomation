@@ -188,8 +188,7 @@ def get_cookies():
 
 
 # 流程
-def process(patent_number):
-    driver = getdriver()
+def process(patent_number, driver):
     # 进入查询页面
     driver.get('http://cpquery.cnipa.gov.cn/txnPantentInfoList.do?')
     # 等待加载完成
@@ -224,14 +223,48 @@ def process(patent_number):
     return token[0]
 
 
-if __name__ == '__main__':
+# 年费状态更新
+def annual_fee_status_update(driver):
     # 获取飞镖网cookies
     feibiaCookie = feibiao_cookie()
     # 获取专利号
     patent_gather = get_patent_number(feibiaCookie)
     patent_number = random.choice(patent_gather)
     print('专利号:' + str(patent_number))
+
     # 登录
-    login()
+    login(username='', password='')
     # 获取token
-    token = process(patent_number)
+    token = process(patent_number, driver)
+    # 获取cookies
+    cookies = get_cookies()
+    # 更新
+    patent_update(feibiao_cookie=feibiaCookie, update_token=token, update_cookie=cookies)
+    print('第1次更新完成')
+
+    s1 = update_successfully(feibiaCookie)
+    count = 0
+    while True:
+        sleep(30)
+        s2 = update_successfully(feibiaCookie)
+
+        if s1 < s2:
+            count += 1
+            s1 = update_successfully(feibiaCookie)
+            # 获取专利号
+            patent_gather = get_patent_number(feibiaCookie)
+            patent_number = random.choice(patent_gather)
+            # 获取token
+            token = process(patent_number, driver)
+            # 获取cookies
+            cookies = get_cookies()
+            # 更新
+            patent_update(feibiao_cookie=feibiaCookie, update_token=token, update_cookie=cookies)
+            print('第' + str(count) + '次更新完成')
+
+
+if __name__ == '__main__':
+    driver = getdriver()
+    annual_fee_status_update(driver)
+    if does_the_element_exist(driver=driver, xpath_path='//*[@id="slogo"]', time=10):
+        login(username='', password='')

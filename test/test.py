@@ -135,8 +135,7 @@ def patent_inquire_code(driver):
 
 
 # 登录专利查询网站
-def login(username, password):
-    driver = getdriver()
+def login(username, password, driver):
     driver.get('http://cpquery.cnipa.gov.cn/')
     driver.maximize_window()
     # 隐示等待，用于等待网页加载，应用于全局
@@ -144,8 +143,7 @@ def login(username, password):
 
     # 解决网站加载超时问题
     if not whether_words_exist(driver=driver, xpath_path='//*[@id="selectyzm_text"]', time=20, content='请依次点击'):
-        driver.quit()
-        login(username, password)
+        login(username, password, driver)
 
     # 显示等待，等待验证码图片加载出来
     WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, '//*[@id="jcaptchaimage"]')))
@@ -224,7 +222,8 @@ def process(patent_number, driver):
 
 
 # 年费状态更新
-def annual_fee_status_update(driver):
+def annual_fee_status_update():
+    driver = getdriver()
     # 获取飞镖网cookies
     feibiaCookie = feibiao_cookie()
     # 获取专利号
@@ -233,7 +232,7 @@ def annual_fee_status_update(driver):
     print('专利号:' + str(patent_number))
 
     # 登录
-    login(username='', password='')
+    login(username='', password='', driver=driver)
     # 获取token
     token = process(patent_number, driver)
     # 获取cookies
@@ -264,7 +263,4 @@ def annual_fee_status_update(driver):
 
 
 if __name__ == '__main__':
-    driver = getdriver()
-    annual_fee_status_update(driver)
-    if does_the_element_exist(driver=driver, xpath_path='//*[@id="slogo"]', time=10):
-        login(username='', password='')
+    annual_fee_status_update()

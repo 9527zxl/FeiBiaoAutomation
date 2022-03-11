@@ -212,7 +212,7 @@ def gettoken(patent_number):
         driver.quit()
         gettoken(patent_number)
     # 等待加载完成
-    if not does_the_element_exist(driver=driver, xpath_path='//*[@class="tab_top_on"]/p', time=10):
+    if not does_the_element_exist(driver=driver, xpath_path='//*[@class="tab_top_on"]/p', time=400):
         driver.quit()
         gettoken(patent_number)
 

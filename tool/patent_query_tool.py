@@ -148,7 +148,7 @@ def login():
     WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, '//*[@id="jcaptchaimage"]')))
 
     # 输入账号密码
-    account_password(driver, username='18856414322', password='Zhixin888*')
+    account_password(driver, username='13739277110', password='Zhixin888*')
 
     # 悬浮验证码图片
     imgyzm = driver.find_element(By.XPATH, '//*[@id="imgyzm"]')
@@ -212,7 +212,7 @@ def gettoken(patent_number):
         driver.quit()
         gettoken(patent_number)
     # 等待加载完成
-    if not does_the_element_exist(driver=driver, xpath_path='//*[@class="tab_top_on"]/p', time=400):
+    if not does_the_element_exist(driver=driver, xpath_path='//*[@class="tab_top_on"]/p', time=20):
         driver.quit()
         gettoken(patent_number)
 
@@ -242,7 +242,6 @@ def gettoken(patent_number):
         # 将cookies保存为json格式
         f.write(json.dumps(driver.get_cookies()))
 
-    # 退出浏览器
     driver.quit()
     # 返回token值
     return token[0]

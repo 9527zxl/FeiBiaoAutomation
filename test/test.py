@@ -14,7 +14,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
 from tool.feibaio_tool import getdriver, feibiao_cookie
-from tool.patent_query_tool import gettoken
 from tool.patent_update import get_patent_number, patent_update, update_successfully
 
 
@@ -38,6 +37,13 @@ def whether_words_exist(driver, xpath_path, time, content):
         return True
     except:
         return False
+
+
+# 判断查询网站cookies是否失效
+def whether_the_failure(patent_number, driver, username, password):
+    if does_the_element_exist(driver=driver, xpath_path='//*[@id="slogo"]', time=0):
+        login(username, password, driver)
+        process(patent_number, driver, username, password)
 
 
 # 专利查询网输入账号密码
@@ -138,8 +144,6 @@ def patent_inquire_code(driver):
 def login(username, password, driver):
     driver.get('http://cpquery.cnipa.gov.cn/')
     driver.maximize_window()
-    # 隐示等待，用于等待网页加载，应用于全局
-    driver.implicitly_wait(20)
 
     # 解决网站加载超时问题
     if not whether_words_exist(driver=driver, xpath_path='//*[@id="selectyzm_text"]', time=20, content='请依次点击'):
@@ -186,14 +190,17 @@ def get_cookies():
 
 
 # 流程
-def process(patent_number, driver):
+def process(patent_number, driver, username, password):
     # 进入查询页面
     driver.get('http://cpquery.cnipa.gov.cn/txnPantentInfoList.do?')
+
+    whether_the_failure(patent_number, driver, username, password)
+
     # 等待加载完成
-    WebDriverWait(driver, 20).until(
+    WebDriverWait(driver, 10).until(
         EC.text_to_be_present_in_element((By.XPATH, '//*[@class="tab_top_on"]/p'), '案件信息查询'))
     # 等待验证码加载完成
-    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, '//*[@id="authImg"]')))
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="authImg"]')))
     # 进行验证码识别
     code.count_code = patent_inquire_code(driver)
     # 请求输入过验证码界面
@@ -201,6 +208,9 @@ def process(patent_number, driver):
         'http://cpquery.cnipa.gov.cn/txnQueryOrdinaryPatents.do?select-key:shenqingh=' + str(
             patent_number) + '&verycode=' + str(
             code.count_code))
+
+    whether_the_failure(patent_number, driver, username, password)
+
     # 处理计算验证码失效
     while not does_the_element_exist(driver=driver, xpath_path='//*[@class="bi_icon"]', time=0):
         code.count_code = patent_inquire_code(driver)
@@ -210,6 +220,9 @@ def process(patent_number, driver):
                 code.count_code))
 
     driver.find_element(By.XPATH, '/html/body/div[2]/div[1]/div[2]/div[2]/div/ul/li[1]/a').click()
+
+    whether_the_failure(patent_number, driver, username, password)
+
     # 等待加载完成
     WebDriverWait(driver, 20).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="jbxx"]/p'), '申请信息'))
     # 通过正则获取token
@@ -226,41 +239,28 @@ def annual_fee_status_update():
     driver = getdriver()
     # 获取飞镖网cookies
     feibiaCookie = feibiao_cookie()
-    # 获取专利号
-    patent_gather = get_patent_number(feibiaCookie)
-    patent_number = random.choice(patent_gather)
-    print('专利号:' + str(patent_number))
 
-    # 登录
-    login(username='', password='', driver=driver)
-    # 获取token
-    token = process(patent_number, driver)
-    # 获取cookies
-    cookies = get_cookies()
-    # 更新
-    patent_update(feibiao_cookie=feibiaCookie, update_token=token, update_cookie=cookies)
-    print('第1次更新完成')
-
-    s1 = update_successfully(feibiaCookie)
     count = 0
     while True:
-        sleep(30)
-        s2 = update_successfully(feibiaCookie)
+        count += 1
 
-        if s1 < s2:
-            count += 1
-            s1 = update_successfully(feibiaCookie)
-            # 获取专利号
-            patent_gather = get_patent_number(feibiaCookie)
-            patent_number = random.choice(patent_gather)
-            # 获取token
-            token = process(patent_number, driver)
-            # 获取cookies
-            cookies = get_cookies()
-            # 更新
-            patent_update(feibiao_cookie=feibiaCookie, update_token=token, update_cookie=cookies)
-            print('第' + str(count) + '次更新完成')
+        # 获取专利号
+        patent_number = random.choice(get_patent_number(feibiaCookie))
+        print('专利号:' + str(patent_number))
+        # 获取token
+        token = process(patent_number, driver, username='15156052212', password='Zhixin888*')
+        # 获取cookies
+        cookies = get_cookies()
+        # 年费状态更新
+        patent_update(feibiao_cookie=feibiaCookie, update_token=token, update_cookie=cookies)
+        print('开始更新')
+        sleep(210)
+        print()
+        print('第' + str(count) + '次更新完成')
+        print()
 
 
 if __name__ == '__main__':
+    # # 登录飞镖网
+    # feibiao_login(username='zhuxingli', password='zhuxingli')
     annual_fee_status_update()

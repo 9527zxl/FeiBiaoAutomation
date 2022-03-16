@@ -32,7 +32,6 @@ def feibiao_login(username, password):
     driver = getdriver()
     driver.get('http://www.ipfeibiao.com/manager/frame/index')
     driver.maximize_window()
-    driver.implicitly_wait(20)
 
     # 定位元素输入账号密码
     driver.find_element(By.XPATH, "//input[@name='user_name']").send_keys(username)

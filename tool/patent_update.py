@@ -69,7 +69,7 @@ def get_patent_number(feibiao_cookie):
     return patent_gather
 
 
-# 获取专利年费采集专利号以及更新id
+# 获取专利年费采集专利号以及更新id(state为true获取ids)
 def get_acquisition_patent_Number(feibiao_cookie, state):
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36',
@@ -78,7 +78,7 @@ def get_acquisition_patent_Number(feibiao_cookie, state):
 
     param = {
         'page': 1,
-        'limit': 50,
+        'limit': 90,
         'collection_state': 1
     }
     url = 'http://www.ipfeibiao.com/manager/patentUpdateAnnualfee/list'

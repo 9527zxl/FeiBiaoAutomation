@@ -41,7 +41,7 @@ def whether_words_exist(driver, xpath_path, time, content):
 
 # 判断查询网站cookies是否失效
 def whether_the_failure(patent_number, driver, username, password):
-    if does_the_element_exist(driver=driver, xpath_path='//*[@id="slogo"]', time=0):
+    if does_the_element_exist(driver=driver, xpath_path='//*[@id="slogo"]', time=10):
         login(username, password, driver)
         process(patent_number, driver, username, password)
 
@@ -248,7 +248,7 @@ def annual_fee_status_update():
         patent_number = random.choice(get_patent_number(feibiaCookie))
         print('专利号:' + str(patent_number))
         # 获取token
-        token = process(patent_number, driver, username='15156052212', password='Zhixin888*')
+        token = process(patent_number, driver, username='18365182670', password='Zhixin888*')
         # 获取cookies
         cookies = get_cookies()
         # 年费状态更新

@@ -1,5 +1,6 @@
 import asyncio
 import random
+import sys
 import threading
 from time import sleep
 
@@ -22,6 +23,8 @@ def main():
         print('专利号:' + str(patent_number))
         # 获取token
         token = gettoken(patent_number, driver)
+        if token == '查询次数已经耗尽':
+            sys.exit()
         print('token:' + token)
         # 获取cookies
         cookies = get_cookies()
@@ -50,36 +53,27 @@ def main():
 def collection_and_update():
     driver = getdriver()
     login(driver)
-    # 获取飞镖网cookies
-    feibiaCookie = feibiao_cookie()
-    # 获取专利号
-    patent_number = random.choice(get_acquisition_patent_Number(feibiaCookie, state=False))
-    print(patent_number)
-    # 获取token
-    token = gettoken(patent_number, driver)
-    print(token)
-    # 获取cookies
-    cookies = get_cookies()
-    print(cookies)
-    # 获取id
-    ids = get_acquisition_patent_Number(feibiaCookie, state=True)
-    print(ids)
-    for id in ids:
-        annual_fee_to_update(feibiao_cookie=feibiaCookie, update_cookie=cookies, update_token=token, id=id)
 
+    def update():
+        # 获取飞镖网cookies
+        feibiaCookie = feibiao_cookie()
+        # 获取专利号
+        patent_number = random.choice(get_acquisition_patent_Number(feibiaCookie, state=False))
+        print(patent_number)
+        # 获取token
+        token = gettoken(patent_number, driver)
+        print(token)
+        # 获取cookies
+        cookies = get_cookies()
+        print(cookies)
+        # 获取id
+        # ids = get_acquisition_patent_Number(feibiaCookie, state=True)
+        # for id in ids:
+        #     annual_fee_to_update(feibiao_cookie=feibiaCookie, update_cookie=cookies, update_token=token, id=id)
 
-def get_token_and_cookies():
-    driver = getdriver()
-    # 获取飞镖网cookies
-    feibiaCookie = feibiao_cookie()
-    patent_number = random.choice(get_acquisition_patent_Number(feibiaCookie, state=False))
-    # 获取token
-    token = gettoken(patent_number, driver)
-    print(token)
-    driver.quit()
-    # 获取cookies
-    cookies = get_cookies()
-    print(cookies)
+    while True:
+        update()
+        input()
 
 
 # main()
@@ -88,4 +82,3 @@ def get_token_and_cookies():
 collection_and_update()
 # # 登录飞镖网
 # feibiao_login(username='zhuxingli', password='zhuxingli')
-# get_token_and_cookies()

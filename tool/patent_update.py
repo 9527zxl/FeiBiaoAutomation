@@ -38,7 +38,8 @@ def annual_fee_to_update(feibiao_cookie, update_cookie, update_token, id):
     }
     gather_url = 'http://www.ipfeibiao.com/manager/patentUpdateAnnualfee/getAnnualFeeById'
 
-    requests.post(url=gather_url, params=param, headers=headers)
+    response = requests.post(url=gather_url, params=param, headers=headers).text
+    print(response)
 
 
 # 获取年费状态更新专利号
@@ -78,7 +79,7 @@ def get_acquisition_patent_Number(feibiao_cookie, state):
 
     param = {
         'page': 1,
-        'limit': 90,
+        'limit': 20,
         'collection_state': 1
     }
     url = 'http://www.ipfeibiao.com/manager/patentUpdateAnnualfee/list'

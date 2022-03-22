@@ -48,9 +48,6 @@ def account_password(driver, username, password):
 
 # 点选验证码验证并点击
 def load_verification_code(driver):
-    code_text = driver.find_element(By.XPATH, '//*[@id="selectyzm_text"]').text
-    data = code_text.split('"')
-
     driver.save_screenshot('../temporary/patent_inquire_login.png')
     imgelement = driver.find_element(By.XPATH, '//*[@id="jcaptchaimage"]')  # 定位验证码
     location = imgelement.location  # 获取验证码x,y轴坐标
@@ -78,6 +75,9 @@ def load_verification_code(driver):
         # 根据四个坐标计算中心点
         a = dict(code=word, X=int((coord[0] + coord[2]) / 2), Y=int((coord[1] + coord[3]) / 2))
         code.append(a)
+
+    code_text = driver.find_element(By.XPATH, '//*[@id="selectyzm_text"]').text
+    data = code_text.split('"')
 
     # 根据坐标点击验证码
     for ss in data:
@@ -142,7 +142,7 @@ def login(driver):
     WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, '//*[@id="jcaptchaimage"]')))
 
     # 输入账号密码
-    account_password(driver, username='15922429979', password='Zhixin888*')
+    account_password(driver, username='13665695915', password='Zhixin888*')
 
     # 悬浮验证码图片
     imgyzm = driver.find_element(By.XPATH, '//*[@id="imgyzm"]')
@@ -202,13 +202,21 @@ def gettoken(patent_number, driver):
     # 判断是否在查询页面
     if does_the_element_exist(driver=driver, xpath_path='//*[@id="slogo"]', time=0):
         login(driver)
-
-    code.count_code = patent_inquire_code(driver)
+    # 验证码识别错误
+    try:
+        code.count_code = patent_inquire_code(driver)
+    except Exception:
+        driver.refresh()
+        code.count_code = patent_inquire_code(driver)
     # 请求输入过验证码界面
     driver.get(
-        'http://cpquery.cnipa.gov.cn/txnQueryOrdinaryPatents.do?select-key:shenqingh=' + str(
-            patent_number) + '&verycode=' + str(
+        'http://cpquery.cnipa.gov.cn/txnQueryOrdinaryPatents.do?select-key:shenqingh=' + (str(
+            patent_number)).replace(' ', '') + '&verycode=' + str(
             code.count_code))
+    # 判断查询次数是否耗尽
+    if does_the_element_exist(driver=driver, xpath_path='/html/body/div/img', time=0):
+        driver.quit()
+        return '查询次数已经耗尽'
     # 判断是否在查询页面
     if does_the_element_exist(driver=driver, xpath_path='//*[@id="slogo"]', time=0):
         login(driver)
@@ -216,8 +224,8 @@ def gettoken(patent_number, driver):
     while not does_the_element_exist(driver=driver, xpath_path='//*[@class="bi_icon"]', time=0):
         code.count_code = patent_inquire_code(driver)
         driver.get(
-            'http://cpquery.cnipa.gov.cn/txnQueryOrdinaryPatents.do?select-key:shenqingh=' + str(
-                patent_number) + '&verycode=' + str(
+            'http://cpquery.cnipa.gov.cn/txnQueryOrdinaryPatents.do?select-key:shenqingh=' + (str(
+                patent_number)).replace(' ', '') + '&verycode=' + str(
                 code.count_code))
 
     driver.find_element(By.XPATH, '/html/body/div[2]/div[1]/div[2]/div[2]/div/ul/li[1]/a').click()

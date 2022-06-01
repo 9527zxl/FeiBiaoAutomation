@@ -46,7 +46,7 @@ def main():
         if s1 < s2:
             s1 = update_successfully(feibiaCookie)
             flow_path()
-            count += 2
+            count += 1
             print('第' + str(count) + '次更新完成')
 
 
@@ -57,7 +57,7 @@ def collection_and_update():
     def update():
         # 获取飞镖网cookies
         feibiaCookie = feibiao_cookie()
-        # 获取专利号
+        # 获取专利号4
         patent_number = random.choice(get_acquisition_patent_Number(feibiaCookie, state=False))
         print(patent_number)
         # 获取token
@@ -76,9 +76,9 @@ def collection_and_update():
         input()
 
 
-# main()
+main()
 # driver = getdriver()
 # login(driver)
-collection_and_update()
+# collection_and_update()
 # # 登录飞镖网
 # feibiao_login(username='zhuxingli', password='zhuxingli')

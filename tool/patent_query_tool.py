@@ -78,6 +78,7 @@ def load_verification_code(driver):
 
     code_text = driver.find_element(By.XPATH, '//*[@id="selectyzm_text"]').text
     data = code_text.split('"')
+    sleep(2)
 
     # 根据坐标点击验证码
     for ss in data:
@@ -139,10 +140,10 @@ def login(driver):
         login(driver)
 
     # 显示等待，等待验证码图片加载出来
-    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, '//*[@id="jcaptchaimage"]')))
+    # WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.XPATH, '//*[@id="jcaptchaimage"]')))
 
     # 输入账号密码
-    account_password(driver, username='13665695915', password='Zhixin888*')
+    account_password(driver, username='15156052212', password='Zhixin888*')
 
     # 悬浮验证码图片
     imgyzm = driver.find_element(By.XPATH, '//*[@id="imgyzm"]')
@@ -164,7 +165,7 @@ def login(driver):
         driver.execute_script("arguments[0].click();", element)
 
     # 等待登录加载完成
-    WebDriverWait(driver, 30).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@class="tittle_box"]'), '使用声明'))
+    WebDriverWait(driver, 50).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@class="tittle_box"]'), '使用声明'))
     # 跳过使用声明，进入查询页面
     driver.get('http://cpquery.cnipa.gov.cn/txnPantentInfoList.do?')
     # 获取登录cookies
@@ -200,7 +201,7 @@ def gettoken(patent_number, driver):
     # 进入查询页面
     driver.get('http://cpquery.cnipa.gov.cn/txnPantentInfoList.do?')
     # 判断是否在查询页面
-    if does_the_element_exist(driver=driver, xpath_path='//*[@id="slogo"]', time=0):
+    if does_the_element_exist(driver=driver, xpath_path='//*[@id="slogo"]', time=5):
         login(driver)
     # 验证码识别错误
     try:
@@ -233,7 +234,7 @@ def gettoken(patent_number, driver):
     if does_the_element_exist(driver=driver, xpath_path='//*[@id="slogo"]', time=0):
         login(driver)
     # 等待加载完成
-    WebDriverWait(driver, 20).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="jbxx"]/p'), '申请信息'))
+    WebDriverWait(driver, 40).until(EC.text_to_be_present_in_element((By.XPATH, '//*[@id="jbxx"]/p'), '申请信息'))
 
     # 通过正则获取token
     token = re.findall('token=(.*?)&', driver.current_url)
